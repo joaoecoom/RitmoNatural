@@ -51,11 +51,18 @@ export function OnboardingFlow() {
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [age, setAge] = useState("32");
+  const [weightKg, setWeightKg] = useState("72");
+  const [heightCm, setHeightCm] = useState("165");
+  const [targetWeightKg, setTargetWeightKg] = useState("");
   const [goal, setGoal] = useState("Voltar a sentir o meu corpo mais leve.");
   const [lifePhase, setLifePhase] = useState<LifePhase>("none");
   const [symptoms, setSymptoms] = useState<Symptom[]>(["bloating"]);
   const [stressLevel, setStressLevel] = useState(6);
+  const [energyLevel, setEnergyLevel] = useState(5);
+  const [bloatingLevel, setBloatingLevel] = useState(5);
   const [sleepQuality, setSleepQuality] = useState(5);
+  const [stressCompulsion, setStressCompulsion] = useState(false);
+  const [emotionalMotivation, setEmotionalMotivation] = useState("");
   const [notes, setNotes] = useState("");
   const [acceptsNotifications, setAcceptsNotifications] = useState(true);
   const [scheduleCustomize, setScheduleCustomize] = useState(false);
@@ -168,11 +175,28 @@ export function OnboardingFlow() {
           <form action={completeOnboardingAction} className="space-y-8">
             <input name="full_name" type="hidden" value={name} readOnly />
             <input name="age" type="hidden" value={age} readOnly />
+            <input name="weight_kg" type="hidden" value={weightKg} readOnly />
+            <input name="height_cm" type="hidden" value={heightCm} readOnly />
+            <input name="target_weight_kg" type="hidden" value={targetWeightKg} readOnly />
             <input name="primary_goal" type="hidden" value={goal} readOnly />
             <input name="life_phase" type="hidden" value={lifePhase} readOnly />
             <input name="symptoms" type="hidden" value={JSON.stringify(symptoms)} readOnly />
             <input name="stress_level" type="hidden" value={stressLevel} readOnly />
+            <input name="energy_level" type="hidden" value={energyLevel} readOnly />
+            <input name="bloating_level" type="hidden" value={bloatingLevel} readOnly />
             <input name="sleep_quality" type="hidden" value={sleepQuality} readOnly />
+            <input
+              name="stress_compulsion"
+              type="hidden"
+              value={String(stressCompulsion)}
+              readOnly
+            />
+            <input
+              name="emotional_motivation"
+              type="hidden"
+              value={emotionalMotivation}
+              readOnly
+            />
             <input name="notes" type="hidden" value={notes} readOnly />
             <input
               name="accepts_notifications"
@@ -220,6 +244,26 @@ export function OnboardingFlow() {
                     value={age}
                     onChange={(event: ChangeEvent<HTMLInputElement>) =>
                       setAge(event.target.value)
+                    }
+                  />
+                  <InputField
+                    label="Peso atual (kg)"
+                    max={250}
+                    min={35}
+                    type="number"
+                    value={weightKg}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      setWeightKg(event.target.value)
+                    }
+                  />
+                  <InputField
+                    label="Altura (cm)"
+                    max={220}
+                    min={130}
+                    type="number"
+                    value={heightCm}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                      setHeightCm(event.target.value)
                     }
                   />
                 </div>
@@ -335,12 +379,54 @@ export function OnboardingFlow() {
                   value={stressLevel}
                   onValueChange={setStressLevel}
                 />
+                <Slider
+                  hint="Uma leitura simples da tua energia diária."
+                  label="Nível de energia"
+                  value={energyLevel}
+                  onValueChange={setEnergyLevel}
+                />
+                <Slider
+                  hint="Como tens sentido o inchaço recentemente."
+                  label="Nível de inchaço"
+                  value={bloatingLevel}
+                  onValueChange={setBloatingLevel}
+                />
 
                 <Slider
                   hint="Uma leitura simples da tua noite e da tua recuperação."
                   label="Qualidade do sono"
                   value={sleepQuality}
                   onValueChange={setSleepQuality}
+                />
+
+                <OptionCard
+                  description="Ajuda a Voz a adaptar mensagens para momentos de maior impulso."
+                  icon={<Waves className="size-4 text-[#735C00]" />}
+                  selected={stressCompulsion}
+                  title="Sinto compulsão em momentos de stress"
+                  onClick={() => setStressCompulsion((current) => !current)}
+                />
+
+                <InputField
+                  hint="Opcional, mas útil para personalizar recomendações e a Voz."
+                  label="Motivação emocional"
+                  placeholder="Ex.: quero voltar a confiar no meu corpo e sentir-me presente com a minha família."
+                  multiline
+                  value={emotionalMotivation}
+                  onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
+                    setEmotionalMotivation(event.target.value)
+                  }
+                />
+
+                <InputField
+                  hint="Opcional."
+                  label="Peso objetivo (kg)"
+                  placeholder="Ex.: 65"
+                  type="number"
+                  value={targetWeightKg}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                    setTargetWeightKg(event.target.value)
+                  }
                 />
 
                 <OptionCard

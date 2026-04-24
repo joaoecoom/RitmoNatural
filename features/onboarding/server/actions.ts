@@ -31,6 +31,13 @@ export async function completeOnboardingAction(formData: FormData) {
     const stressLevel = Number(formData.get("stress_level") ?? 5);
     const sleepQuality = Number(formData.get("sleep_quality") ?? 5);
     const notes = String(formData.get("notes") ?? "").trim();
+    const emotionalMotivation = String(formData.get("emotional_motivation") ?? "").trim();
+    const weightKg = Number(formData.get("weight_kg") ?? 0);
+    const heightCm = Number(formData.get("height_cm") ?? 0);
+    const targetWeightKg = Number(formData.get("target_weight_kg") ?? 0);
+    const energyLevel = Number(formData.get("energy_level") ?? 5);
+    const bloatingLevel = Number(formData.get("bloating_level") ?? 5);
+    const stressCompulsion = String(formData.get("stress_compulsion") ?? "false") === "true";
     const acceptsNotifications =
       String(formData.get("accepts_notifications") ?? "false") === "true";
     const scheduleCustomize = String(formData.get("schedule_customize") ?? "false") === "true";
@@ -48,6 +55,13 @@ Fase de vida: ${lifePhase}
 Estado atual do corpo: ${stateLabel}
 Sintomas principais: ${symptoms.join(", ") || "nao indicados"}
 Notas: ${notes || "sem notas adicionais"}
+Peso atual (kg): ${weightKg > 0 ? weightKg : "nao definido"}
+Altura (cm): ${heightCm > 0 ? heightCm : "nao definida"}
+Peso objetivo (kg): ${targetWeightKg > 0 ? targetWeightKg : "nao definido"}
+Energia atual: ${energyLevel}/10
+Inchaco atual: ${bloatingLevel}/10
+Compulsao por stress: ${stressCompulsion ? "sim" : "nao"}
+Motivacao emocional: ${emotionalMotivation || "nao definida"}
 
 Escreve uma mensagem de boas-vindas curta, calorosa e pessoal.
       `.trim(),
@@ -110,7 +124,19 @@ Escreve uma mensagem de boas-vindas curta, calorosa e pessoal.
       symptoms,
       stress_level: stressLevel,
       sleep_quality: sleepQuality,
-      notes: notes || null,
+      notes:
+        [
+          notes || null,
+          `Peso:${weightKg > 0 ? weightKg : "n/a"}kg`,
+          `Altura:${heightCm > 0 ? heightCm : "n/a"}cm`,
+          `PesoObjetivo:${targetWeightKg > 0 ? targetWeightKg : "n/a"}kg`,
+          `Energia:${energyLevel}/10`,
+          `Inchaco:${bloatingLevel}/10`,
+          `CompulsaoStress:${stressCompulsion ? "sim" : "nao"}`,
+          emotionalMotivation ? `Motivacao:${emotionalMotivation}` : null,
+        ]
+          .filter(Boolean)
+          .join(" | ") || null,
       accepts_notifications: acceptsNotifications,
     });
 
@@ -123,6 +149,19 @@ Escreve uma mensagem de boas-vindas curta, calorosa e pessoal.
       score,
       state_label: stateLabel,
     });
+
+    if (primaryGoal) {
+      await supabase.from("goals").upsert(
+        {
+          user_id: user.id,
+          primary_goal: primaryGoal,
+          target_weight: targetWeightKg > 0 ? targetWeightKg : null,
+          emotional_reason: emotionalMotivation || null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+    }
 
     const { data: welcomeVoice, error: welcomeVoiceError } = await supabase
       .from("voice_messages")

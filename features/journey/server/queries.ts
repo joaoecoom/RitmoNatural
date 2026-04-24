@@ -15,8 +15,15 @@ export interface JourneyCalendarData {
   days: JourneyDayRow[];
   streak: number;
   weekCompletionPct: number;
+  failedDays: number;
+  dayLine: string;
   stressLevel: "low" | "moderate" | "high";
   nextMilestone: string;
+  badges: Array<{
+    id: string;
+    title: string;
+    unlocked: boolean;
+  }>;
   challenges: Array<{
     id: string;
     title: string;
@@ -34,8 +41,11 @@ export async function getJourneyCalendarData(userId: string): Promise<JourneyCal
       days: [],
       streak: 0,
       weekCompletionPct: 0,
+      failedDays: 0,
+      dayLine: "Dia 1 da tua saída do modo sobrevivencia",
       stressLevel: "moderate",
       nextMilestone: "Completar o primeiro dia da jornada.",
+      badges: [],
       challenges: [],
     };
   }
@@ -48,6 +58,8 @@ export async function getJourneyCalendarData(userId: string): Promise<JourneyCal
     .limit(42);
 
   const days = (rows ?? []) as JourneyDayRow[];
+  const latestDayNumber = days[0]?.day_number ?? 1;
+  const failedDays = days.filter((d) => d.status === "failed").length;
 
   let streak = 0;
   for (const d of days) {
@@ -148,5 +160,27 @@ export async function getJourneyCalendarData(userId: string): Promise<JourneyCal
     challenges.find((c) => !c.done)?.title ??
     (streak < 7 ? `Chegar a ${Math.max(streak + 1, 7)} dias seguidos` : "Manter consistencia semanal");
 
-  return { days, streak, weekCompletionPct, stressLevel, nextMilestone, challenges };
+  const badges: JourneyCalendarData["badges"] = [
+    { id: "streak-3", title: "3 dias seguidos", unlocked: streak >= 3 },
+    { id: "streak-7", title: "7 dias seguidos", unlocked: streak >= 7 },
+    { id: "stress-low", title: "Stress em descida", unlocked: stressLevel === "low" },
+    { id: "week-80", title: "Semana consistente", unlocked: weekCompletionPct >= 80 },
+    {
+      id: "challenges-all",
+      title: "Desafios ativos concluídos",
+      unlocked: challenges.length > 0 && challenges.every((challenge) => challenge.done),
+    },
+  ];
+
+  return {
+    days,
+    streak,
+    weekCompletionPct,
+    failedDays,
+    dayLine: `Dia ${latestDayNumber} da tua saida do modo sobrevivencia`,
+    stressLevel,
+    nextMilestone,
+    badges,
+    challenges,
+  };
 }

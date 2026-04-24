@@ -13,6 +13,29 @@ interface VoiceResponsePayload {
   nextAction: string;
 }
 
+function buildLocalFallback(params: {
+  firstName: string;
+  stress: number | null;
+  energy: number | null;
+  completed: number;
+  total: number;
+  nextTaskTitle: string;
+  goal: string;
+}): VoiceResponsePayload {
+  const { firstName, stress, energy, completed, total, nextTaskTitle, goal } = params;
+  const stressText =
+    stress === null ? "sem check-in de stress ainda" : stress >= 8 ? "em alerta" : stress >= 5 ? "sensivel" : "mais regulado";
+  const energyText =
+    energy === null ? "energia por medir" : energy <= 3 ? "energia baixa" : energy <= 6 ? "energia media" : "boa energia";
+
+  return {
+    response: `${firstName}, hoje o teu corpo parece ${stressText} e com ${energyText}. Ja concluíste ${completed}/${total} passos. Vamos simples para manter seguranca interna.`,
+    recommendation: `Agora foca em: ${nextTaskTitle}.`,
+    tone: stress !== null && stress >= 8 ? "reconfortante" : "encorajador",
+    nextAction: `${nextTaskTitle} (${goal})`,
+  };
+}
+
 function isVoiceResponsePayload(value: unknown): value is VoiceResponsePayload {
   if (!value || typeof value !== "object") {
     return false;
@@ -85,12 +108,15 @@ export async function POST(request: Request) {
 
   const nextTask = (tasks ?? []).find((t) => !t.completed);
   const completed = (tasks ?? []).filter((t) => t.completed).length;
+  const firstName = profile?.full_name?.trim().split(" ")[0] ?? "Tu";
+  const primaryGoal =
+    goal?.primary_goal ?? profile?.primary_goal ?? "voltar ao Ritmo Natural";
 
   const voice = await generateVoiceReply({
     purpose: "checkin",
     context: `
 Nome: ${profile?.full_name ?? "utilizadora"}
-Objetivo principal: ${goal?.primary_goal ?? profile?.primary_goal ?? "voltar ao Ritmo Natural"}
+Objetivo principal: ${primaryGoal}
 Motivo emocional: ${goal?.emotional_reason ?? "nao definido"}
 Fase de vida: ${profile?.life_phase ?? "nao definida"}
 
@@ -132,14 +158,16 @@ Entregar JSON com:
     parsed = null;
   }
 
-  const fallback: VoiceResponsePayload = {
-    response: voice.message,
-    recommendation: nextTask
-      ? `Agora faz: ${nextTask.title}.`
-      : "Fecha o dia com uma refeicao simples e uma pausa de respiracao.",
-    tone: "calmo",
-    nextAction: nextTask?.title ?? "Fechar o dia com leveza",
-  };
+  // Se o modelo nao devolver JSON valido, usamos um fallback local contextual.
+  const fallback: VoiceResponsePayload = buildLocalFallback({
+    firstName,
+    stress: latestCheckin?.stress_score ?? null,
+    energy: latestCheckin?.energy_score ?? null,
+    completed,
+    total: tasks?.length ?? journey?.total_steps ?? 0,
+    nextTaskTitle: nextTask?.title ?? "uma pausa de respiracao e hidratacao",
+    goal: primaryGoal,
+  });
 
   const result = parsed ?? fallback;
 
@@ -153,6 +181,6 @@ Entregar JSON com:
 
   return NextResponse.json({
     ...result,
-    source: "A Voz",
+    source: voice.provider === "openrouter" ? "A Voz" : "A Voz (fallback local)",
   });
 }

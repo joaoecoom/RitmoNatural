@@ -21,6 +21,15 @@ export function JourneyOverview({ data }: { data: JourneyCalendarData }) {
         eyebrow="Jornada"
         title="O teu calendario interior"
       >
+        <Card className="mb-4 px-5 py-4" tone="soft">
+          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[rgba(15,26,20,0.42)]">
+            Linha viva
+          </p>
+          <p className="mt-2 text-base font-semibold text-[#0F1A14]">{data.dayLine}</p>
+          <p className="mt-2 text-sm text-[rgba(15,26,20,0.56)]">
+            Dias falhados: {data.failedDays}. O foco e voltar ao plano seguinte, sem dramatizar.
+          </p>
+        </Card>
         <div className="grid gap-4 sm:grid-cols-3">
           <Card className="px-5 py-5" tone="soft">
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-[rgba(15,26,20,0.42)]">
@@ -57,6 +66,20 @@ export function JourneyOverview({ data }: { data: JourneyCalendarData }) {
           <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${stressTone}`}>
             Stress atual: {data.stressLevel === "low" ? "baixo" : data.stressLevel === "moderate" ? "moderado" : "alto"}
           </span>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {data.badges.map((badge) => (
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
+                badge.unlocked
+                  ? "bg-[rgba(212,175,55,0.26)] text-[#735C00]"
+                  : "bg-[rgba(15,26,20,0.06)] text-[rgba(15,26,20,0.45)]"
+              }`}
+              key={badge.id}
+            >
+              {badge.unlocked ? "★ " : ""} {badge.title}
+            </span>
+          ))}
         </div>
       </SectionCard>
 
