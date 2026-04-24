@@ -76,7 +76,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/today");
     router.refresh();
   }
 

@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { generateVoiceReply } from "@/lib/ai";
 import { requireCompletedOnboarding, requireUser } from "@/lib/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { attachVoiceAudioToMessage } from "@/lib/voice/attach-message-audio";
 import { calculateProgressScore, getBodyStateLabel } from "@/lib/utils/progress";
 import type { DailyCheckin } from "@/types/domain";
 
@@ -103,13 +104,28 @@ Escreve uma resposta curta da Voz que reflita o estado atual e sugira um proximo
     state_label: getBodyStateLabel(score),
   });
 
-  await supabase.from("voice_messages").insert({
-    user_id: user.id,
-    title: "Resposta da Voz",
-    body: voice.message,
-    audio_url: null,
-    message_type: "checkin_response",
-  });
+  const { data: voiceRow, error: voiceInsertError } = await supabase
+    .from("voice_messages")
+    .insert({
+      user_id: user.id,
+      title: "Resposta da Voz",
+      body: voice.message,
+      audio_url: null,
+      message_type: "checkin_response",
+    })
+    .select("id")
+    .single();
+
+  if (voiceInsertError) {
+    return {
+      success: false,
+      message: voiceInsertError.message,
+    };
+  }
+
+  if (voiceRow?.id) {
+    await attachVoiceAudioToMessage(supabase, user.id, voiceRow.id, voice.message);
+  }
 
   return {
     success: true,

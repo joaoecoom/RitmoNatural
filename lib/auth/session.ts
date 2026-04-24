@@ -62,7 +62,7 @@ export async function requireOnboarding() {
   const profile = await getCurrentProfile();
 
   if (profile?.onboarding_completed) {
-    redirect("/dashboard");
+    redirect("/today");
   }
 
   return profile;

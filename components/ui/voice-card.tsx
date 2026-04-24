@@ -13,6 +13,7 @@ export function VoiceCard({
   cta = "Ouvir agora",
   onDark = false,
   footer,
+  audioSrc,
 }: {
   eyebrow?: string;
   title: string;
@@ -20,6 +21,8 @@ export function VoiceCard({
   cta?: string;
   onDark?: boolean;
   footer?: ReactNode;
+  /** URL assinada ou publica para elemento audio (TTS). */
+  audioSrc?: string | null;
 }) {
   return (
     <Card
@@ -61,10 +64,21 @@ export function VoiceCard({
         </p>
 
         <div className="mt-7 flex justify-center">
-          <Button size="lg" variant={onDark ? "gold" : "primary"}>
-            <PlayCircle className="mr-2 size-4" />
-            {cta}
-          </Button>
+          {audioSrc ? (
+            <audio
+              className="h-11 w-full max-w-md rounded-2xl"
+              controls
+              preload="metadata"
+              src={audioSrc}
+            >
+              <track kind="captions" />
+            </audio>
+          ) : (
+            <Button size="lg" variant={onDark ? "gold" : "primary"} type="button">
+              <PlayCircle className="mr-2 size-4" />
+              {cta}
+            </Button>
+          )}
         </div>
 
         {footer ? <div className="mt-6">{footer}</div> : null}

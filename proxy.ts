@@ -5,12 +5,22 @@ import { getRequiredSupabaseEnv, isSupabaseConfigured } from "@/lib/config/env";
 import type { Database } from "@/types/database";
 
 const protectedRoutes = [
+  "/today",
   "/dashboard",
+  "/journey",
+  "/goals",
+  "/schedule",
+  "/programs",
+  "/upgrade",
+  "/admin",
   "/onboarding",
   "/check-in",
   "/meals",
   "/voice",
   "/progress",
+  "/notifications",
+  "/settings",
+  "/profile",
   "/logout",
 ];
 
@@ -56,7 +66,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/today", request.url));
   }
 
   return response;

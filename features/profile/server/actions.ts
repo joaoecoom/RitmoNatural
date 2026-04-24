@@ -97,6 +97,7 @@ export async function updateProfileAction(
   }
 
   revalidatePath("/profile");
+  revalidatePath("/today");
   revalidatePath("/dashboard");
   revalidatePath("/settings");
 

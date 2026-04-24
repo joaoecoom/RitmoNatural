@@ -24,5 +24,5 @@ export default async function Home() {
     return <SplashRedirect destination="/onboarding" />;
   }
 
-  return <SplashRedirect destination="/dashboard" />;
+  return <SplashRedirect destination="/today" />;
 }

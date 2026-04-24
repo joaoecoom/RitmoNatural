@@ -114,7 +114,7 @@ export function SettingsForm({ settings }: { settings: UserSettings }) {
             <div className="space-y-3">
               <SettingToggle
                 checked={pushNotifications}
-                description="Avisos suaves quando a app tiver suporte completo para push."
+                description="Com VAPID e service worker (/sw.js), o browser pede permissao e regista a subscricao para lembretes."
                 title="Notificacoes push"
                 onChange={setPushNotifications}
               />

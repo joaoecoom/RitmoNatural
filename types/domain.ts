@@ -29,6 +29,8 @@ export type VoiceMessageType =
   | "meal_reflection"
   | "encouragement";
 
+export type ProfileRole = "user" | "admin" | "super_admin";
+
 export interface Profile {
   id: string;
   full_name: string | null;
@@ -37,6 +39,8 @@ export interface Profile {
   life_phase: LifePhase | string | null;
   primary_goal: string | null;
   onboarding_completed: boolean;
+  role?: ProfileRole | string;
+  full_access?: boolean;
   created_at: string;
   updated_at: string;
 }

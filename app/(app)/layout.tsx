@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { WebPushRegister } from "@/components/push/web-push-register";
 import { AppearanceRoot } from "@/components/providers/appearance-root";
 import { getApproxUnreadVoiceNotificationsCount } from "@/features/notifications/server/queries";
 import { getUserSettings } from "@/features/settings/server/queries";
@@ -31,6 +32,7 @@ export default async function AuthenticatedLayout({
       pushNotifications={settings.push_notifications}
       soundscapeEnabled={settings.soundscape_enabled}
     >
+      <WebPushRegister />
       <AppShell
         appearance={settings.appearance_mode}
         avatarSignedUrl={avatarSignedUrl}

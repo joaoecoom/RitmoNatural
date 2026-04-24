@@ -6,10 +6,12 @@ import { generateVoiceReply } from "@/lib/ai";
 import { requireUser } from "@/lib/auth/session";
 import { env } from "@/lib/config/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { attachVoiceAudioToMessage } from "@/lib/voice/attach-message-audio";
 import {
   calculateProgressScore,
   getBodyStateLabel,
 } from "@/lib/utils/progress";
+import { formTimeToDb } from "@/lib/utils/time-db";
 import type { Symptom } from "@/types/domain";
 
 export async function completeOnboardingAction(formData: FormData) {
@@ -31,6 +33,7 @@ export async function completeOnboardingAction(formData: FormData) {
     const notes = String(formData.get("notes") ?? "").trim();
     const acceptsNotifications =
       String(formData.get("accepts_notifications") ?? "false") === "true";
+    const scheduleCustomize = String(formData.get("schedule_customize") ?? "false") === "true";
 
     const symptoms = JSON.parse(symptomsRaw) as Symptom[];
     const score = calculateProgressScore({ stressLevel, sleepQuality, symptoms });
@@ -64,6 +67,44 @@ Escreve uma mensagem de boas-vindas curta, calorosa e pessoal.
       throw new Error(profileError.message);
     }
 
+    if (scheduleCustomize) {
+      const breakfast_time = formTimeToDb(String(formData.get("breakfast_time") ?? ""));
+      const lunch_time = formTimeToDb(String(formData.get("lunch_time") ?? ""));
+      const snack_time = formTimeToDb(String(formData.get("snack_time") ?? ""));
+      const dinner_time = formTimeToDb(String(formData.get("dinner_time") ?? ""));
+      const sleep_time = formTimeToDb(String(formData.get("sleep_time") ?? ""));
+      const wake_time = formTimeToDb(String(formData.get("wake_time") ?? ""));
+
+      if (
+        !breakfast_time ||
+        !lunch_time ||
+        !snack_time ||
+        !dinner_time ||
+        !sleep_time ||
+        !wake_time
+      ) {
+        throw new Error("Preenche todos os horarios personalizados.");
+      }
+
+      const { error: scheduleError } = await supabase.from("user_schedule").upsert(
+        {
+          user_id: user.id,
+          breakfast_time,
+          lunch_time,
+          snack_time,
+          dinner_time,
+          sleep_time,
+          wake_time,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+
+      if (scheduleError) {
+        throw new Error(scheduleError.message);
+      }
+    }
+
     const { error: answerError } = await supabase.from("onboarding_answers").insert({
       user_id: user.id,
       symptoms,
@@ -83,13 +124,25 @@ Escreve uma mensagem de boas-vindas curta, calorosa e pessoal.
       state_label: stateLabel,
     });
 
-    await supabase.from("voice_messages").insert({
-      user_id: user.id,
-      title: "A tua nova fase comeca hoje",
-      body: voice.message,
-      audio_url: null,
-      message_type: "daily_guidance",
-    });
+    const { data: welcomeVoice, error: welcomeVoiceError } = await supabase
+      .from("voice_messages")
+      .insert({
+        user_id: user.id,
+        title: "A tua nova fase comeca hoje",
+        body: voice.message,
+        audio_url: null,
+        message_type: "daily_guidance",
+      })
+      .select("id")
+      .single();
+
+    if (welcomeVoiceError) {
+      throw new Error(welcomeVoiceError.message);
+    }
+
+    if (welcomeVoice?.id) {
+      await attachVoiceAudioToMessage(supabase, user.id, welcomeVoice.id, voice.message);
+    }
 
     await supabase.from("daily_adjustments").insert([
       {
@@ -115,7 +168,7 @@ Escreve uma mensagem de boas-vindas curta, calorosa e pessoal.
       },
     ]);
 
-    redirect("/dashboard");
+    redirect("/today");
   } catch (error) {
     console.error("[ONBOARDING_DEBUG_ERROR]", {
       message: error instanceof Error ? error.message : "unknown error",
@@ -143,11 +196,19 @@ Cria uma mensagem curta de encorajamento para os primeiros momentos dentro da ap
     `.trim(),
   });
 
-  await supabase.from("voice_messages").insert({
-    user_id: userId,
-    title: "A Voz esta contigo",
-    body: voice.message,
-    audio_url: null,
-    message_type: "encouragement",
-  });
+  const { data: row } = await supabase
+    .from("voice_messages")
+    .insert({
+      user_id: userId,
+      title: "A Voz esta contigo",
+      body: voice.message,
+      audio_url: null,
+      message_type: "encouragement",
+    })
+    .select("id")
+    .single();
+
+  if (row?.id) {
+    await attachVoiceAudioToMessage(supabase, userId, row.id, voice.message);
+  }
 }

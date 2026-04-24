@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { interpretMealWithOpenRouter } from "@/lib/ai";
 import { requireCompletedOnboarding } from "@/lib/auth/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { attachVoiceAudioToMessage } from "@/lib/voice/attach-message-audio";
 import type { MealEntry } from "@/types/domain";
 
 export interface MealActionState {
@@ -87,13 +88,23 @@ Faz uma leitura desta refeicao em tom emocional e simples, sem julgamento.
     };
   }
 
-  await supabase.from("voice_messages").insert({
-    user_id: user.id,
-    title: "Leitura da refeicao",
-    body: interpretation.interpretation,
-    audio_url: null,
-    message_type: "meal_reflection",
-  });
+  const { data: voiceRow, error: voiceInsertError } = await supabase
+    .from("voice_messages")
+    .insert({
+      user_id: user.id,
+      title: "Leitura da refeicao",
+      body: interpretation.interpretation,
+      audio_url: null,
+      message_type: "meal_reflection",
+    })
+    .select("id")
+    .single();
+
+  if (voiceInsertError) {
+    console.error("[MEAL_VOICE_INSERT]", voiceInsertError.message);
+  } else if (voiceRow?.id) {
+    await attachVoiceAudioToMessage(supabase, user.id, voiceRow.id, interpretation.interpretation);
+  }
 
   return {
     success: true,

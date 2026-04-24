@@ -18,6 +18,8 @@ export interface Database {
           life_phase: string | null;
           primary_goal: string | null;
           onboarding_completed: boolean;
+          role: string;
+          full_access: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -29,6 +31,8 @@ export interface Database {
           life_phase?: string | null;
           primary_goal?: string | null;
           onboarding_completed?: boolean;
+          role?: string;
+          full_access?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,6 +44,8 @@ export interface Database {
           life_phase?: string | null;
           primary_goal?: string | null;
           onboarding_completed?: boolean;
+          role?: string;
+          full_access?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -276,6 +282,324 @@ export interface Database {
           soundscape_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      goals: {
+        Row: {
+          id: string;
+          user_id: string;
+          primary_goal: string;
+          target_weight: number | null;
+          deadline: string | null;
+          emotional_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          primary_goal: string;
+          target_weight?: number | null;
+          deadline?: string | null;
+          emotional_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          primary_goal?: string;
+          target_weight?: number | null;
+          deadline?: string | null;
+          emotional_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      user_schedule: {
+        Row: {
+          id: string;
+          user_id: string;
+          breakfast_time: string;
+          lunch_time: string;
+          snack_time: string;
+          dinner_time: string;
+          sleep_time: string;
+          wake_time: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          breakfast_time?: string;
+          lunch_time?: string;
+          snack_time?: string;
+          dinner_time?: string;
+          sleep_time?: string;
+          wake_time?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          breakfast_time?: string;
+          lunch_time?: string;
+          snack_time?: string;
+          dinner_time?: string;
+          sleep_time?: string;
+          wake_time?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      daily_journey: {
+        Row: {
+          id: string;
+          user_id: string;
+          day_number: number;
+          journey_date: string;
+          status: string;
+          completed_steps: number;
+          total_steps: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          day_number: number;
+          journey_date: string;
+          status?: string;
+          completed_steps?: number;
+          total_steps?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          day_number?: number;
+          journey_date?: string;
+          status?: string;
+          completed_steps?: number;
+          total_steps?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      daily_tasks: {
+        Row: {
+          id: string;
+          user_id: string;
+          journey_id: string;
+          title: string;
+          description: string;
+          task_type: string;
+          scheduled_time: string | null;
+          sort_order: number;
+          deep_link: string | null;
+          completed: boolean;
+          completed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          journey_id: string;
+          title: string;
+          description: string;
+          task_type: string;
+          scheduled_time?: string | null;
+          sort_order?: number;
+          deep_link?: string | null;
+          completed?: boolean;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          journey_id?: string;
+          title?: string;
+          description?: string;
+          task_type?: string;
+          scheduled_time?: string | null;
+          sort_order?: number;
+          deep_link?: string | null;
+          completed?: boolean;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      notification_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          checkin_enabled: boolean;
+          meal_reminders_enabled: boolean;
+          voice_reminders_enabled: boolean;
+          water_reminders_enabled: boolean;
+          sleep_reminders_enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          checkin_enabled?: boolean;
+          meal_reminders_enabled?: boolean;
+          voice_reminders_enabled?: boolean;
+          water_reminders_enabled?: boolean;
+          sleep_reminders_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          checkin_enabled?: boolean;
+          meal_reminders_enabled?: boolean;
+          voice_reminders_enabled?: boolean;
+          water_reminders_enabled?: boolean;
+          sleep_reminders_enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      notification_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          body: string;
+          type: string;
+          scheduled_for: string | null;
+          sent_at: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          body: string;
+          type: string;
+          scheduled_for?: string | null;
+          sent_at?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          body?: string;
+          type?: string;
+          scheduled_for?: string | null;
+          sent_at?: string | null;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      programs: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          access_level: string;
+          price_reference: string | null;
+          stripe_price_id: string | null;
+          active: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          access_level?: string;
+          price_reference?: string | null;
+          stripe_price_id?: string | null;
+          active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          access_level?: string;
+          price_reference?: string | null;
+          stripe_price_id?: string | null;
+          active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          endpoint?: string;
+          p256dh?: string;
+          auth?: string;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      user_program_access: {
+        Row: {
+          id: string;
+          user_id: string;
+          program_id: string;
+          access_status: string;
+          granted_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          program_id: string;
+          access_status?: string;
+          granted_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          program_id?: string;
+          access_status?: string;
+          granted_by?: string | null;
+          created_at?: string;
         };
         Relationships: [];
       };

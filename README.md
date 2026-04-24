@@ -8,7 +8,7 @@ MVP em `Next.js` para um produto de emagrecimento feminino com linguagem emocion
 - `TypeScript`
 - `Tailwind CSS`
 - `Supabase` para auth, base de dados e storage
-- placeholders para `OpenRouter` e `Stripe`
+- `OpenRouter` (texto), `OpenAI` (TTS opcional), `Stripe` (checkout + webhook), Web Push + cron de lembretes
 
 ## Estrutura
 
@@ -64,10 +64,13 @@ cp .env.example .env.local
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `OPENROUTER_API_KEY`
-- `STRIPE_SECRET_KEY`
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-- `STRIPE_WEBHOOK_SECRET`
+- `OPENROUTER_API_KEY` (texto da Voz / refeições)
+- `OPENAI_API_KEY` (opcional — áudio MP3 nas mensagens da Voz)
+- `NEXT_PUBLIC_APP_URL` (URL pública; em Vercel podes omitir se usares o domínio automático)
+- `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PROGRAM_PRICE_IDS` (JSON slug → price_id) ou preenche `programs.stripe_price_id` na BD
+- Web Push: `NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`, `WEB_PUSH_SUBJECT` (ex.: mailto:…)
+- `CRON_SECRET` — protege `GET /api/cron/daily-reminders` (Vercel Cron envia `Authorization: Bearer` quando defines `CRON_SECRET` no projeto)
 
 4. No painel do Supabase:
 
@@ -85,10 +88,17 @@ npm run dev
 ## Notas de implementacao
 
 - o auth esta preparado com `@supabase/ssr`
-- as buckets esperadas sao `meal-photos` e `voice-audio`
-- a interpretacao de refeicoes e as respostas da Voz usam mocks em `lib/ai`
-- o billing futuro esta preparado em `lib/billing/stripe.ts`
+- as buckets esperadas sao `meal-photos`, `voice-audio` e `profile-photos`
+- sem `OPENROUTER_API_KEY`, a Voz e as leituras de refeição usam texto mock em `lib/ai`
+- **Stripe**: `POST /api/stripe/webhook` — configura o endpoint no Stripe com o mesmo `STRIPE_WEBHOOK_SECRET`; apos `checkout.session.completed` concede `user_program_access`
+- **Web Push**: `public/sw.js` + registo em Definições (notificações push); cron em `vercel.json` chama `/api/cron/daily-reminders` às 07:00 UTC
 - o MVP evita linguagem de calorias, macros e treino como centro visual
+
+## Scripts úteis de produção
+
+- `npm run readiness` — checklist automático (env + schema + admin seed).
+- `npm run push:vapid` — gera chaves VAPID para Web Push.
+- `npm run push:vapid -- --write` — grava VAPID em `secrets/local.env` (sem sobrescrever entradas existentes).
 
 ## Proximo passo natural
 

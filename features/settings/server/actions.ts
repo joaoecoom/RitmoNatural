@@ -52,6 +52,7 @@ export async function updateSettingsAction(
   revalidatePath("/", "layout");
   revalidatePath("/settings");
   revalidatePath("/profile");
+  revalidatePath("/today");
   revalidatePath("/dashboard");
   revalidatePath("/notifications");
 

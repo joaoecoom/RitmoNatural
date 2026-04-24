@@ -3,10 +3,10 @@ import { HeartHandshake, PlayCircle, Waves, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
 import { VoiceCard } from "@/components/ui/voice-card";
-import type { VoiceMessage } from "@/types/domain";
+import type { VoiceMessageView } from "@/features/voice/server/queries";
 
-export function VoiceFeed({ messages }: { messages: VoiceMessage[] }) {
-  const items =
+export function VoiceFeed({ messages }: { messages: VoiceMessageView[] }) {
+  const items: VoiceMessageView[] =
     messages.length > 0
       ? messages
       : [
@@ -15,6 +15,7 @@ export function VoiceFeed({ messages }: { messages: VoiceMessage[] }) {
             title: "Mensagem do dia",
             body: "Mais um passo para voltares ao teu ritmo natural.",
             audio_url: null,
+            audio_playback_url: null,
             message_type: "daily_guidance",
             user_id: "fallback",
             created_at: new Date().toISOString(),
@@ -32,11 +33,12 @@ export function VoiceFeed({ messages }: { messages: VoiceMessage[] }) {
     <div className="grid gap-6">
       <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
         <VoiceCard
+          audioSrc={latestMessage.audio_playback_url}
           body={
             latestMessage.body ??
             "Mensagens curtas para trazer seguranca, clareza e consistencia ao teu dia."
           }
-          cta={latestMessage.audio_url ? "Ouvir a mensagem de hoje" : "Audio em breve"}
+          cta={latestMessage.audio_playback_url ? "Ouvir a mensagem de hoje" : "Audio em breve"}
           onDark
           title={latestMessage.title ?? "Uma presenca, nao uma feature."}
           footer={
@@ -112,7 +114,7 @@ export function VoiceFeed({ messages }: { messages: VoiceMessage[] }) {
                 Evolucao
               </p>
               <p className="mt-3 text-base font-medium text-[#0F1A14]">
-                Esta area vai ganhar audio e respostas ainda mais pessoais.
+                Com OPENAI_API_KEY, as novas mensagens passam a ter audio TTS automaticamente.
               </p>
             </div>
           </Card>
@@ -151,13 +153,21 @@ export function VoiceFeed({ messages }: { messages: VoiceMessage[] }) {
                     })}
                   </p>
                 </div>
-                <button
-                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(15,26,20,0.08)] bg-[rgba(255,251,247,0.82)] px-4 py-2 text-sm text-[rgba(15,26,20,0.56)]"
-                  type="button"
-                >
-                  <PlayCircle className="size-4" />
-                  {message.audio_url ? "Reproduzir" : "Audio em breve"}
-                </button>
+                {message.audio_playback_url ? (
+                  <audio
+                    className="h-10 w-[min(100%,220px)]"
+                    controls
+                    preload="none"
+                    src={message.audio_playback_url}
+                  >
+                    <track kind="captions" />
+                  </audio>
+                ) : (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(15,26,20,0.08)] bg-[rgba(255,251,247,0.82)] px-4 py-2 text-sm text-[rgba(15,26,20,0.56)]">
+                    <PlayCircle className="size-4" />
+                    Audio em breve
+                  </span>
+                )}
               </div>
               <p className="mt-4 text-sm leading-8 text-[rgba(15,26,20,0.58)]">{message.body}</p>
             </Card>

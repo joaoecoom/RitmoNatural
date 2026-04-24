@@ -34,13 +34,13 @@ export function AppShell({
   return (
     <div className="app-shell-background min-h-screen">
       <div className="premium-grid mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-28 pt-5 sm:px-6 sm:pb-12">
-        <header className="mb-7">
+        <header className="mb-5">
           <Card
-            className="flex items-center justify-between gap-4 px-4 py-4 sm:px-5"
+            className="flex items-center justify-between gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-3.5"
             tone={headerTone}
           >
-            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-              <div className="relative h-11 w-[88px] shrink-0 sm:h-[52px] sm:w-[104px]">
+            <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+              <div className="relative h-9 w-[72px] shrink-0 sm:h-10 sm:w-[80px]">
                 <Image
                   alt="Ritmo Natural"
                   className={cn(
@@ -51,27 +51,27 @@ export function AppShell({
                   )}
                   fill
                   priority
-                  sizes="(max-width: 640px) 88px, 104px"
+                  sizes="(max-width: 640px) 72px, 80px"
                   src="/brand/ritmo-natural-logo.png"
                 />
               </div>
               <div className="min-w-0">
                 <p
                   className={cn(
-                    "text-[11px] uppercase tracking-[0.28em]",
+                    "text-[10px] font-medium uppercase tracking-[0.14em] sm:text-[11px] sm:tracking-[0.2em]",
                     isDark ? "text-[rgba(244,239,230,0.55)]" : "text-[rgba(15,26,20,0.42)]",
                   )}
                 >
                   Ritmo Natural
                 </p>
-                <h1
+                <p
                   className={cn(
-                    "font-serif text-[28px] leading-none",
+                    "mt-0.5 truncate text-sm font-medium leading-snug sm:text-[15px]",
                     isDark ? "text-[#F4EFE6]" : "text-[#0F1A14]",
                   )}
                 >
-                  A Voz esta contigo
-                </h1>
+                  Plano diario e a Voz no mesmo sitio
+                </p>
               </div>
             </div>
 
@@ -159,38 +159,6 @@ export function AppShell({
             </div>
           </Card>
         </header>
-
-        <div className="mb-7 flex items-end justify-between gap-4 px-1">
-          <div>
-            <p
-              className={cn(
-                "text-sm",
-                isDark ? "text-[rgba(244,239,230,0.5)]" : "text-[rgba(15,26,20,0.44)]",
-              )}
-            >
-              Hoje vamos com mais calma e seguranca.
-            </p>
-            <p
-              className={cn(
-                "mt-2 font-serif text-[40px] leading-none sm:text-[48px]",
-                isDark ? "text-[#F4EFE6]" : "text-[#0F1A14]",
-              )}
-            >
-              {profile?.full_name ? `Ola, ${profile.full_name}` : "Ola"}
-            </p>
-          </div>
-
-          <div
-            className={cn(
-              "hidden rounded-full px-4 py-2.5 text-sm ring-1 sm:block",
-              isDark
-                ? "bg-[rgba(255,251,247,0.08)] text-[rgba(244,239,230,0.62)] ring-[rgba(255,251,247,0.1)]"
-                : "bg-[rgba(255,251,247,0.86)] text-[rgba(15,26,20,0.56)] ring-[rgba(15,26,20,0.06)]",
-            )}
-          >
-            O teu corpo responde melhor com consistencia suave.
-          </div>
-        </div>
 
         <main className="flex-1">{children}</main>
 

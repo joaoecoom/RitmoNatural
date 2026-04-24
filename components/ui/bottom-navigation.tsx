@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, AudioLines, Home, Sparkles, Utensils } from "lucide-react";
+import { AudioLines, CalendarDays, Home, UserRound, Utensils } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 
 const items = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/check-in", label: "Check-in", icon: Activity },
-  { href: "/meals", label: "Refeicoes", icon: Utensils },
+  { href: "/today", label: "Hoje", icon: Home },
+  { href: "/journey", label: "Jornada", icon: CalendarDays },
   { href: "/voice", label: "A Voz", icon: AudioLines },
-  { href: "/progress", label: "Progresso", icon: Sparkles },
+  { href: "/meals", label: "Refeicoes", icon: Utensils },
+  { href: "/profile", label: "Perfil", icon: UserRound },
 ];
 
 export function BottomNavigation() {

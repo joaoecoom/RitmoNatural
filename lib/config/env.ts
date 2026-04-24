@@ -3,9 +3,14 @@ const env = {
   supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   openRouterApiKey: process.env.OPENROUTER_API_KEY,
+  openaiApiKey: process.env.OPENAI_API_KEY,
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+  webPushPublicKey: process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY,
+  webPushPrivateKey: process.env.WEB_PUSH_PRIVATE_KEY,
+  webPushSubject: process.env.WEB_PUSH_SUBJECT,
+  cronSecret: process.env.CRON_SECRET,
 };
 
 export function isSupabaseConfigured() {
@@ -16,6 +21,30 @@ export function isSupabaseAdminConfigured() {
   return Boolean(
     env.supabaseUrl && env.supabaseAnonKey && env.supabaseServiceRoleKey,
   );
+}
+
+export function isOpenAiTtsConfigured() {
+  return Boolean(env.openaiApiKey);
+}
+
+export function isWebPushServerConfigured() {
+  return Boolean(
+    env.webPushPublicKey && env.webPushPrivateKey && env.webPushSubject,
+  );
+}
+
+/** URL pública da app (Stripe redirects, links absolutos). */
+export function getAppBaseUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (explicit) {
+    return explicit.replace(/\/$/, "");
+  }
+  const vercel = process.env.VERCEL_URL?.trim();
+  if (vercel) {
+    const host = vercel.replace(/^https?:\/\//, "");
+    return `https://${host}`;
+  }
+  return "http://localhost:3000";
 }
 
 export function getRequiredSupabaseEnv() {

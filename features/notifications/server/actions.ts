@@ -28,6 +28,7 @@ export async function markVoiceMessageReadAction(voiceMessageId: string) {
 
   revalidatePath("/", "layout");
   revalidatePath("/notifications");
+  revalidatePath("/today");
   revalidatePath("/dashboard");
 
   return { ok: true as const };

@@ -6,6 +6,7 @@ import {
   Bell,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Flower2,
   Target,
   Waves,
@@ -57,6 +58,13 @@ export function OnboardingFlow() {
   const [sleepQuality, setSleepQuality] = useState(5);
   const [notes, setNotes] = useState("");
   const [acceptsNotifications, setAcceptsNotifications] = useState(true);
+  const [scheduleCustomize, setScheduleCustomize] = useState(false);
+  const [breakfastTime, setBreakfastTime] = useState("08:00");
+  const [lunchTime, setLunchTime] = useState("13:00");
+  const [snackTime, setSnackTime] = useState("16:30");
+  const [dinnerTime, setDinnerTime] = useState("20:00");
+  const [sleepTime, setSleepTime] = useState("23:00");
+  const [wakeTime, setWakeTime] = useState("07:00");
 
   const steps = useMemo(
     () => [
@@ -86,6 +94,11 @@ export function OnboardingFlow() {
           "Estamos quase. Vamos terminar com um retrato leve do teu dia-a-dia.",
       },
       {
+        title: "Os teus horários",
+        description:
+          "Os lembretes e o plano do dia usam estes marcos. Podes manter o sugerido ou ajustar ao teu dia real.",
+      },
+      {
         title: "A Voz já está contigo",
         description:
           "Este é o início do teu novo ritmo. A partir daqui, o cuidado passa a ser mais guiado.",
@@ -112,10 +125,14 @@ export function OnboardingFlow() {
     setStep((current) => Math.max(current - 1, 0));
   }
 
+  const scheduleFieldsFilled =
+    Boolean(breakfastTime && lunchTime && snackTime && dinnerTime && sleepTime && wakeTime);
+
   const canContinue =
     (step === 0 && name.trim().length > 1) ||
     (step === 1 && goal.trim().length > 0) ||
-    step > 1;
+    (step > 1 && step < 5) ||
+    (step === 5 && (!scheduleCustomize || scheduleFieldsFilled));
 
   return (
     <div className="mx-auto max-w-[1040px]">
@@ -163,6 +180,17 @@ export function OnboardingFlow() {
               value={String(acceptsNotifications)}
               readOnly
             />
+            <input name="schedule_customize" type="hidden" value={scheduleCustomize ? "true" : "false"} />
+            {scheduleCustomize ? (
+              <>
+                <input name="breakfast_time" type="hidden" value={breakfastTime} />
+                <input name="lunch_time" type="hidden" value={lunchTime} />
+                <input name="snack_time" type="hidden" value={snackTime} />
+                <input name="dinner_time" type="hidden" value={dinnerTime} />
+                <input name="sleep_time" type="hidden" value={sleepTime} />
+                <input name="wake_time" type="hidden" value={wakeTime} />
+              </>
+            ) : null}
 
             {step === 0 ? (
               <div className="space-y-5 fade-up">
@@ -326,6 +354,86 @@ export function OnboardingFlow() {
             ) : null}
 
             {step === 5 ? (
+              <div className="space-y-5 fade-up">
+                <BrandHeader
+                  description="Pequeno-almoço 08:00 · Almoço 13:00 · Lanche 16:30 · Jantar 20:00 · Dormir 23:00 · Acordar 07:00 — podes manter estes sugeridos."
+                  eyebrow="Rotina"
+                  title="Queres ajustar os teus horários?"
+                />
+
+                <div className="grid gap-3">
+                  <OptionCard
+                    description="Menos decisões agora; ajustas depois em Perfil → Horários."
+                    icon={<Clock className="size-4 text-[#735C00]" />}
+                    selected={!scheduleCustomize}
+                    title="Não, usar os horários sugeridos"
+                    onClick={() => setScheduleCustomize(false)}
+                  />
+                  <OptionCard
+                    description="Ideal se o teu dia real é diferente do ritmo típico."
+                    icon={<Clock className="size-4 text-[#735C00]" />}
+                    selected={scheduleCustomize}
+                    title="Sim, quero definir os meus horários"
+                    onClick={() => setScheduleCustomize(true)}
+                  />
+                </div>
+
+                {scheduleCustomize ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <InputField
+                      label="Pequeno-almoço"
+                      type="time"
+                      value={breakfastTime}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setBreakfastTime(event.target.value)
+                      }
+                    />
+                    <InputField
+                      label="Almoço"
+                      type="time"
+                      value={lunchTime}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setLunchTime(event.target.value)
+                      }
+                    />
+                    <InputField
+                      label="Lanche"
+                      type="time"
+                      value={snackTime}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setSnackTime(event.target.value)
+                      }
+                    />
+                    <InputField
+                      label="Jantar"
+                      type="time"
+                      value={dinnerTime}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setDinnerTime(event.target.value)
+                      }
+                    />
+                    <InputField
+                      label="Hora de dormir"
+                      type="time"
+                      value={sleepTime}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setSleepTime(event.target.value)
+                      }
+                    />
+                    <InputField
+                      label="Hora de acordar"
+                      type="time"
+                      value={wakeTime}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setWakeTime(event.target.value)
+                      }
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {step === 6 ? (
               <div className="space-y-6 fade-up">
                 <div className="flex justify-center">
                   <VoiceOrb label="A Voz" size="lg" />
@@ -358,6 +466,14 @@ export function OnboardingFlow() {
                       <p className="eyebrow">Ritmo atual</p>
                       <p className="mt-2 text-sm font-semibold text-[#201B16]">
                         Stress {stressLevel}/10 · Sono {sleepQuality}/10
+                      </p>
+                    </div>
+                    <div className="rounded-[24px] bg-[rgba(255,248,245,0.84)] px-4 py-4 sm:col-span-2">
+                      <p className="eyebrow">Horários do dia</p>
+                      <p className="mt-2 text-sm font-semibold text-[#201B16]">
+                        {scheduleCustomize
+                          ? `Personalizados: ${breakfastTime} · ${lunchTime} · ${snackTime} · ${dinnerTime} · ${sleepTime} · ${wakeTime}`
+                          : "Sugeridos (podes mudar depois em Horários e rotina)"}
                       </p>
                     </div>
                   </div>
