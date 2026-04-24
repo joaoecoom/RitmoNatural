@@ -50,7 +50,16 @@ export default async function AdminUserDetailPage({
     );
   }
 
-  const { profile, email, programs, recentCheckins, recentMeals, mealsWithPhotoCount } = detail;
+  const {
+    profile,
+    email,
+    programs,
+    recentCheckins,
+    recentMeals,
+    mealsWithPhotoCount,
+    notificationHistory,
+    notificationPreferences,
+  } = detail;
 
   return (
     <div className="grid gap-6">
@@ -200,6 +209,49 @@ export default async function AdminUserDetailPage({
             )}
           </div>
         </div>
+      </SectionCard>
+
+      <SectionCard
+        description="Visibilidade de preferência e histórico de envio/leitura para esta utilizadora."
+        eyebrow="Notificacoes"
+        title="Estado de notificacoes"
+      >
+        <div className="grid gap-4 sm:grid-cols-5">
+          <Card className="px-3 py-3 text-xs" tone="soft">
+            Check-in: {notificationPreferences?.checkin_enabled ? "on" : "off"}
+          </Card>
+          <Card className="px-3 py-3 text-xs" tone="soft">
+            Refeicoes: {notificationPreferences?.meal_reminders_enabled ? "on" : "off"}
+          </Card>
+          <Card className="px-3 py-3 text-xs" tone="soft">
+            Voz: {notificationPreferences?.voice_reminders_enabled ? "on" : "off"}
+          </Card>
+          <Card className="px-3 py-3 text-xs" tone="soft">
+            Agua: {notificationPreferences?.water_reminders_enabled ? "on" : "off"}
+          </Card>
+          <Card className="px-3 py-3 text-xs" tone="soft">
+            Sono: {notificationPreferences?.sleep_reminders_enabled ? "on" : "off"}
+          </Card>
+        </div>
+
+        {notificationHistory.length === 0 ? (
+          <p className="text-sm text-[rgba(15,26,20,0.52)]">Sem histórico de notificações.</p>
+        ) : (
+          <ul className="space-y-2">
+            {notificationHistory.map((n) => (
+              <li className="rounded-2xl bg-[rgba(255,251,247,0.7)] px-3 py-2 text-sm" key={n.id}>
+                <p className="font-medium text-[#0F1A14]">
+                  {n.title} · <span className="text-[rgba(15,26,20,0.58)]">{n.type}</span>
+                </p>
+                <p className="mt-1 text-xs text-[rgba(15,26,20,0.45)]">
+                  {n.sent_at ? `Enviada ${new Date(n.sent_at).toLocaleString("pt-PT")}` : "Não enviada"}
+                  {" · "}
+                  {n.read_at ? `Lida ${new Date(n.read_at).toLocaleString("pt-PT")}` : "Não lida"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </SectionCard>
     </div>
   );

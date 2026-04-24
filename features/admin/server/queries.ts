@@ -105,6 +105,18 @@ export interface AdminUserDetail {
   >[];
   recentMeals: Pick<Database["public"]["Tables"]["meal_entries"]["Row"], "id" | "meal_text" | "created_at">[];
   mealsWithPhotoCount: number;
+  notificationHistory: Pick<
+    Database["public"]["Tables"]["notification_history"]["Row"],
+    "id" | "title" | "type" | "sent_at" | "read_at" | "created_at"
+  >[];
+  notificationPreferences: Pick<
+    Database["public"]["Tables"]["notification_preferences"]["Row"],
+    | "checkin_enabled"
+    | "meal_reminders_enabled"
+    | "voice_reminders_enabled"
+    | "water_reminders_enabled"
+    | "sleep_reminders_enabled"
+  > | null;
 }
 
 export async function getAdminUserDetail(userId: string): Promise<AdminUserDetail | null> {
@@ -121,6 +133,8 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
     checkinsRes,
     mealsRes,
     photoCountRes,
+    notificationsRes,
+    prefsRes,
   ] = await Promise.all([
     admin.from("profiles").select("*").eq("id", userId).maybeSingle(),
     admin.auth.admin.getUserById(userId),
@@ -147,6 +161,19 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
       .select("*", { count: "exact", head: true })
       .eq("user_id", userId)
       .not("image_url", "is", null),
+    admin
+      .from("notification_history")
+      .select("id, title, type, sent_at, read_at, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10),
+    admin
+      .from("notification_preferences")
+      .select(
+        "checkin_enabled, meal_reminders_enabled, voice_reminders_enabled, water_reminders_enabled, sleep_reminders_enabled",
+      )
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
 
   const accessMap = new Map(
@@ -169,5 +196,7 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
     recentCheckins: (checkinsRes.data ?? []) as AdminUserDetail["recentCheckins"],
     recentMeals: (mealsRes.data ?? []) as AdminUserDetail["recentMeals"],
     mealsWithPhotoCount: photoCountRes.count ?? 0,
+    notificationHistory: (notificationsRes.data ?? []) as AdminUserDetail["notificationHistory"],
+    notificationPreferences: prefsRes.data ?? null,
   };
 }

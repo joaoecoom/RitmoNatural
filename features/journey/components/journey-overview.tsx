@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Droplets, Star, TrendingUp } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
@@ -6,6 +7,12 @@ import type { JourneyCalendarData } from "@/features/journey/server/queries";
 
 export function JourneyOverview({ data }: { data: JourneyCalendarData }) {
   const latest = data.days[0];
+  const stressTone =
+    data.stressLevel === "low"
+      ? "text-[#2f6b3b] bg-[rgba(127,152,129,0.26)]"
+      : data.stressLevel === "moderate"
+        ? "text-[#6a5d43] bg-[rgba(236,213,177,0.45)]"
+        : "text-[#8f3f3f] bg-[rgba(232,186,186,0.35)]";
 
   return (
     <div className="grid gap-6">
@@ -43,6 +50,53 @@ export function JourneyOverview({ data }: { data: JourneyCalendarData }) {
             </p>
           </Card>
         </div>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <span className="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[rgba(15,26,20,0.66)] ring-1 ring-[rgba(15,26,20,0.08)]">
+            Proximo marco: {data.nextMilestone}
+          </span>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${stressTone}`}>
+            Stress atual: {data.stressLevel === "low" ? "baixo" : data.stressLevel === "moderate" ? "moderado" : "alto"}
+          </span>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        description="Pequenos desafios para reforcar sinais de seguranca e consistencia."
+        eyebrow="Desafios ativos"
+        title="A tua semana ganha tracao aqui"
+      >
+        <ul className="grid gap-3">
+          {data.challenges.map((challenge) => {
+            const pct = Math.round((challenge.current / challenge.target) * 100);
+            return (
+              <li key={challenge.id}>
+                <Card className="px-4 py-4 sm:px-5" tone="soft">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      {challenge.done ? (
+                        <Star className="size-4 text-[#D4AF37]" />
+                      ) : challenge.id.includes("sleep") ? (
+                        <Droplets className="size-4 text-[#6a5d43]" />
+                      ) : (
+                        <TrendingUp className="size-4 text-[#6a5d43]" />
+                      )}
+                      <p className="font-medium text-[#0F1A14]">{challenge.title}</p>
+                    </div>
+                    <span className="text-sm font-semibold text-[rgba(15,26,20,0.62)]">
+                      {challenge.current}/{challenge.target}
+                    </span>
+                  </div>
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[rgba(15,26,20,0.08)]">
+                    <div
+                      className={`h-full rounded-full transition-all ${challenge.done ? "bg-[linear-gradient(90deg,#D4AF37,#C6A75E)]" : "bg-[rgba(127,152,129,0.7)]"}`}
+                      style={{ width: `${Math.min(pct, 100)}%` }}
+                    />
+                  </div>
+                </Card>
+              </li>
+            );
+          })}
+        </ul>
       </SectionCard>
 
       <SectionCard

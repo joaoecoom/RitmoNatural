@@ -20,6 +20,14 @@ export function TodayOverview({ data }: { data: TodayPageData }) {
   const nextTask = data.tasks.find((t) => !t.completed);
   const { summary } = data;
   const planComplete = data.tasks.length > 0 && done >= data.tasks.length;
+  const stressColor =
+    summary.latestStress === null
+      ? "text-[rgba(15,26,20,0.58)]"
+      : summary.latestStress <= 4
+        ? "text-[#2f6b3b]"
+        : summary.latestStress <= 7
+          ? "text-[#6a5d43]"
+          : "text-[#8f3f3f]";
   const closingFallback =
     planComplete && !summary.closingVoice
       ? "Fechaste o plano de hoje com presença. Amanhã o corpo lembra-se deste ritmo."
@@ -52,6 +60,17 @@ export function TodayOverview({ data }: { data: TodayPageData }) {
               ? `Estado: ${data.stateLabel}.`
               : "Estas a consolidar um ritmo mais leve e consistente."}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
+            <span className={`rounded-full bg-[rgba(255,251,247,0.9)] px-2.5 py-1 ring-1 ring-[rgba(15,26,20,0.08)] ${stressColor}`}>
+              Stress: {summary.latestStress !== null ? `${summary.latestStress}/10` : "—"}
+            </span>
+            <span className="rounded-full bg-[rgba(255,251,247,0.9)] px-2.5 py-1 text-[rgba(15,26,20,0.62)] ring-1 ring-[rgba(15,26,20,0.08)]">
+              Energia: {summary.latestEnergy !== null ? `${summary.latestEnergy}/10` : "—"}
+            </span>
+            <span className="rounded-full bg-[rgba(255,251,247,0.9)] px-2.5 py-1 text-[rgba(15,26,20,0.62)] ring-1 ring-[rgba(15,26,20,0.08)]">
+              Inchaco: {summary.latestBloating !== null ? `${summary.latestBloating}/10` : "—"}
+            </span>
+          </div>
         </div>
         <div className="rounded-[22px] bg-[rgba(236,213,177,0.28)] px-4 py-3 text-sm text-[rgba(32,27,22,0.78)] ring-1 ring-[rgba(198,167,94,0.2)]">
           <p className="font-medium text-[#0F1A14]">Objetivo atual</p>
@@ -186,6 +205,26 @@ export function TodayOverview({ data }: { data: TodayPageData }) {
         eyebrow="Resumo do dia"
         title={planComplete ? "Como fechaste o dia" : "O teu dia em progresso"}
       >
+        <div className="mb-4 rounded-[22px] border border-[rgba(198,167,94,0.22)] bg-[rgba(255,251,247,0.82)] px-4 py-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[rgba(15,26,20,0.45)]">
+            Hidratacao do dia
+          </p>
+          <div className="mt-3 flex items-end gap-2">
+            {Array.from({ length: Math.max(summary.waterStepsTotal, 4) }).map((_, idx) => {
+              const active = idx < summary.waterStepsDone;
+              return (
+                <span
+                  className={`inline-block h-7 w-4 rounded-b-md rounded-t-sm ${active ? "bg-[linear-gradient(180deg,#9cc6de,#79aecf)]" : "bg-[rgba(15,26,20,0.08)]"}`}
+                  key={`water-${idx}`}
+                  title={active ? "Copo concluido" : "Pendente"}
+                />
+              );
+            })}
+            <span className="ml-2 text-sm font-medium text-[rgba(15,26,20,0.62)]">
+              {summary.waterStepsDone}/{summary.waterStepsTotal || 0}
+            </span>
+          </div>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card className="px-4 py-4" tone="soft">
             <p className="text-xs font-semibold uppercase tracking-wide text-[rgba(15,26,20,0.45)]">

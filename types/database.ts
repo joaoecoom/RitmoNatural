@@ -507,6 +507,42 @@ export interface Database {
         };
         Relationships: [];
       };
+      notification_schedule: {
+        Row: {
+          id: string;
+          user_id: string;
+          checkin_time: string;
+          water_time: string;
+          meal_log_time: string;
+          voice_time: string;
+          sleep_time: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          checkin_time?: string;
+          water_time?: string;
+          meal_log_time?: string;
+          voice_time?: string;
+          sleep_time?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          checkin_time?: string;
+          water_time?: string;
+          meal_log_time?: string;
+          voice_time?: string;
+          sleep_time?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       programs: {
         Row: {
           id: string;

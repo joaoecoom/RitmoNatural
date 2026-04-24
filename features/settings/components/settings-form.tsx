@@ -9,12 +9,19 @@ import { OptionCard } from "@/components/ui/option-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { SettingToggle } from "@/components/ui/setting-toggle";
 import {
+  resetAppProgressAction,
   updateSettingsAction,
+  type ResetActionState,
   type SettingsActionState,
 } from "@/features/settings/server/actions";
 import type { UserSettings } from "@/types/domain";
 
 const initialState: SettingsActionState = {
+  success: false,
+  message: "",
+};
+
+const initialResetState: ResetActionState = {
   success: false,
   message: "",
 };
@@ -44,6 +51,10 @@ const appearanceModes: Array<{
 export function SettingsForm({ settings }: { settings: UserSettings }) {
   const router = useRouter();
   const [state, action, pending] = useActionState(updateSettingsAction, initialState);
+  const [resetState, resetAction, resetPending] = useActionState(
+    resetAppProgressAction,
+    initialResetState,
+  );
   const [appearanceMode, setAppearanceMode] = useState(settings.appearance_mode);
   const [pushNotifications, setPushNotifications] = useState(settings.push_notifications);
   const [dailyVoiceReminder, setDailyVoiceReminder] = useState(
@@ -219,6 +230,36 @@ export function SettingsForm({ settings }: { settings: UserSettings }) {
               <p className="mt-3 text-sm leading-8 text-[rgba(15,26,20,0.58)]">
                 Aparencia e preferencias ficam guardadas para a app te reconhecer melhor.
               </p>
+            </div>
+
+            <div className="rounded-[26px] border border-[rgba(186,26,26,0.18)] bg-[rgba(255,245,244,0.78)] p-5">
+              <p className="text-sm font-semibold text-[#7c1d1d]">Comecar do zero</p>
+              <p className="mt-2 text-sm leading-7 text-[rgba(90,40,40,0.84)]">
+                Isto reinicia onboarding, check-ins, refeicoes, jornada e objetivos. A tua conta,
+                permissões e acessos a programas mantêm-se.
+              </p>
+
+              <form action={resetAction} className="mt-4 flex flex-col gap-3">
+                <input
+                  className="min-h-11 rounded-2xl border border-[rgba(186,26,26,0.22)] bg-white px-4 text-sm text-[#201b16] outline-none ring-rose-500/20 placeholder:text-[rgba(90,40,40,0.46)] focus:ring-2"
+                  name="confirm_reset"
+                  placeholder='Escreve "RESETAR" para confirmar'
+                  required
+                  type="text"
+                />
+                {resetState.message ? (
+                  <p className="text-xs text-[rgba(124,29,29,0.84)]">{resetState.message}</p>
+                ) : null}
+                <div className="flex justify-end">
+                  <Button
+                    disabled={resetPending}
+                    size="md"
+                    variant="secondary"
+                  >
+                    {resetPending ? "A reiniciar..." : "Reiniciar app"}
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         </SectionCard>

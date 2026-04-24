@@ -14,6 +14,38 @@ export interface NotificationsPageData {
   adjustments: DailyAdjustment[];
   latestCheckin: DailyCheckin | null;
   settings: UserSettings | null;
+  preferences: {
+    checkin_enabled: boolean;
+    meal_reminders_enabled: boolean;
+    voice_reminders_enabled: boolean;
+    water_reminders_enabled: boolean;
+    sleep_reminders_enabled: boolean;
+  } | null;
+  schedule: {
+    breakfast_time: string;
+    lunch_time: string;
+    snack_time: string;
+    dinner_time: string;
+    sleep_time: string;
+    wake_time: string;
+  } | null;
+  notificationSchedule: {
+    checkin_time: string;
+    water_time: string;
+    meal_log_time: string;
+    voice_time: string;
+    sleep_time: string;
+  } | null;
+  history: Array<{
+    id: string;
+    title: string;
+    body: string;
+    type: string;
+    sent_at: string | null;
+    read_at: string | null;
+    scheduled_for: string | null;
+    created_at: string;
+  }>;
 }
 
 export async function getNotificationsPageData(
@@ -28,10 +60,23 @@ export async function getNotificationsPageData(
       adjustments: [],
       latestCheckin: null,
       settings: null,
+      preferences: null,
+      schedule: null,
+      notificationSchedule: null,
+      history: [],
     };
   }
 
-  const [{ data: voiceMessages }, { data: adjustments }, { data: checkins }, { data: settings }] =
+  const [
+    { data: voiceMessages },
+    { data: adjustments },
+    { data: checkins },
+    { data: settings },
+    { data: preferences },
+    { data: schedule },
+    { data: notificationSchedule },
+    { data: history },
+  ] =
     await Promise.all([
       supabase
         .from("voice_messages")
@@ -52,6 +97,29 @@ export async function getNotificationsPageData(
         .order("created_at", { ascending: false })
         .limit(1),
       supabase.from("user_settings").select("*").eq("user_id", userId).maybeSingle(),
+      supabase
+        .from("notification_preferences")
+        .select(
+          "checkin_enabled, meal_reminders_enabled, voice_reminders_enabled, water_reminders_enabled, sleep_reminders_enabled",
+        )
+        .eq("user_id", userId)
+        .maybeSingle(),
+      supabase
+        .from("user_schedule")
+        .select("breakfast_time, lunch_time, snack_time, dinner_time, sleep_time, wake_time")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      supabase
+        .from("notification_schedule")
+        .select("checkin_time, water_time, meal_log_time, voice_time, sleep_time")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      supabase
+        .from("notification_history")
+        .select("id, title, body, type, sent_at, read_at, scheduled_for, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(8),
     ]);
 
   const messages = voiceMessages ?? [];
@@ -74,6 +142,10 @@ export async function getNotificationsPageData(
     adjustments: adjustments ?? [],
     latestCheckin: checkins?.[0] ?? null,
     settings: settings ?? null,
+    preferences: preferences ?? null,
+    schedule: schedule ?? null,
+    notificationSchedule: notificationSchedule ?? null,
+    history: history ?? [],
   };
 }
 

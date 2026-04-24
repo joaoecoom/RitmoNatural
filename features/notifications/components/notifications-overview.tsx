@@ -5,10 +5,12 @@ import {
   CheckCircle2,
   ChevronRight,
   HeartHandshake,
+  History,
   Settings2,
 } from "lucide-react";
 
 import { SectionCard } from "@/components/ui/section-card";
+import { NotificationPreferencesForm } from "@/features/notifications/components/notification-preferences-form";
 import { VoiceNotificationList } from "@/features/notifications/components/voice-notification-list";
 import type { NotificationsPageData } from "@/features/notifications/server/queries";
 
@@ -165,14 +167,65 @@ export function NotificationsOverview({
             eyebrow="Preferencias"
             title="Gerir configuracoes de notificacoes."
           >
+            <NotificationPreferencesForm
+              prefs={data.preferences}
+              schedule={data.notificationSchedule}
+            />
+            <div className="mt-3 rounded-[20px] bg-[rgba(255,251,247,0.74)] px-4 py-3 text-xs leading-6 text-[rgba(15,26,20,0.58)] ring-1 ring-[rgba(15,26,20,0.06)]">
+              Horarios base atuais: acordar {data.schedule?.wake_time?.slice(0, 5) ?? "07:00"} ·
+              almoco {data.schedule?.lunch_time?.slice(0, 5) ?? "13:00"} · dormir{" "}
+              {data.schedule?.sleep_time?.slice(0, 5) ?? "23:00"}.
+            </div>
             <Link
-              className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,#D4AF37,#C6A75E)] px-5 py-3 text-sm font-semibold text-[#201B16] shadow-[0_14px_30px_rgba(198,167,94,0.24)] transition hover:-translate-y-0.5 hover:brightness-[1.02]"
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,#D4AF37,#C6A75E)] px-5 py-3 text-sm font-semibold text-[#201B16] shadow-[0_14px_30px_rgba(198,167,94,0.24)] transition hover:-translate-y-0.5 hover:brightness-[1.02]"
               href="/settings"
             >
               <Settings2 className="size-4" />
               Abrir configuracoes
               <ChevronRight className="size-4" />
             </Link>
+          </SectionCard>
+
+          <SectionCard
+            description="Histórico dos envios registados para a tua conta."
+            eyebrow="Historico"
+            title="Notificacoes recentes"
+          >
+            <ul className="space-y-2">
+              {(data.history.length > 0
+                ? data.history
+                : [
+                    {
+                      id: "none",
+                      title: "Sem notificacoes enviadas",
+                      body: "Quando houver envios, vais ver aqui.",
+                      type: "system",
+                      sent_at: null,
+                      read_at: null,
+                      scheduled_for: null,
+                      created_at: new Date().toISOString(),
+                    },
+                  ]
+              ).map((h) => (
+                <li
+                  className="rounded-[20px] bg-[rgba(255,251,247,0.74)] px-4 py-3 text-sm ring-1 ring-[rgba(15,26,20,0.06)]"
+                  key={h.id}
+                >
+                  <div className="flex items-start gap-2">
+                    <History className="mt-0.5 size-4 text-[rgba(15,26,20,0.42)]" />
+                    <div>
+                      <p className="font-medium text-[#0F1A14]">{h.title}</p>
+                      <p className="mt-1 text-[rgba(15,26,20,0.58)]">{h.body}</p>
+                      <p className="mt-1 text-xs text-[rgba(15,26,20,0.42)]">
+                        {h.sent_at
+                          ? `enviada ${new Date(h.sent_at).toLocaleString("pt-PT")}`
+                          : "ainda nao enviada"}
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </SectionCard>
         </div>
       </div>

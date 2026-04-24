@@ -2,6 +2,7 @@ import { HeartHandshake, PlayCircle, Waves, Sparkles } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
+import { generateVoiceAudioAction } from "@/features/voice/server/actions";
 import { VoiceCard } from "@/components/ui/voice-card";
 import type { VoiceMessageView } from "@/features/voice/server/queries";
 
@@ -114,7 +115,7 @@ export function VoiceFeed({ messages }: { messages: VoiceMessageView[] }) {
                 Evolucao
               </p>
               <p className="mt-3 text-base font-medium text-[#0F1A14]">
-                Com OPENAI_API_KEY, as novas mensagens passam a ter audio TTS automaticamente.
+                As novas mensagens da Voz ganham audio quando disponivel, mantendo a mesma presença calma.
               </p>
             </div>
           </Card>
@@ -163,10 +164,23 @@ export function VoiceFeed({ messages }: { messages: VoiceMessageView[] }) {
                     <track kind="captions" />
                   </audio>
                 ) : (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(15,26,20,0.08)] bg-[rgba(255,251,247,0.82)] px-4 py-2 text-sm text-[rgba(15,26,20,0.56)]">
-                    <PlayCircle className="size-4" />
-                    Audio em breve
-                  </span>
+                  message.id === "fallback-voice" ? (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(15,26,20,0.08)] bg-[rgba(255,251,247,0.82)] px-4 py-2 text-sm text-[rgba(15,26,20,0.56)]">
+                      <PlayCircle className="size-4" />
+                      Audio em breve
+                    </span>
+                  ) : (
+                    <form action={generateVoiceAudioAction}>
+                      <input name="message_id" type="hidden" value={message.id} />
+                      <button
+                        className="inline-flex items-center gap-2 rounded-full border border-[rgba(15,26,20,0.12)] bg-[rgba(255,251,247,0.88)] px-4 py-2 text-sm font-medium text-[rgba(15,26,20,0.62)]"
+                        type="submit"
+                      >
+                        <PlayCircle className="size-4" />
+                        Gerar audio agora
+                      </button>
+                    </form>
+                  )
                 )}
               </div>
               <p className="mt-4 text-sm leading-8 text-[rgba(15,26,20,0.58)]">{message.body}</p>

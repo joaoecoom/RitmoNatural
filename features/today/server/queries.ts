@@ -30,7 +30,12 @@ export interface TodayDaySummary {
   checkinsTodayCount: number;
   avgStress: number | null;
   avgEnergy: number | null;
+  latestStress: number | null;
+  latestEnergy: number | null;
+  latestBloating: number | null;
   mealsTodayCount: number;
+  waterStepsDone: number;
+  waterStepsTotal: number;
   /** Texto da Voz (mensagem do dia ou resposta ao check-in), se existir. */
   closingVoice: string | null;
 }
@@ -52,7 +57,12 @@ export async function getTodayPageData(userId: string): Promise<TodayPageData> {
     checkinsTodayCount: 0,
     avgStress: null,
     avgEnergy: null,
+    latestStress: null,
+    latestEnergy: null,
+    latestBloating: null,
     mealsTodayCount: 0,
+    waterStepsDone: 0,
+    waterStepsTotal: 0,
     closingVoice: null,
   };
 
@@ -98,7 +108,7 @@ export async function getTodayPageData(userId: string): Promise<TodayPageData> {
     supabase.from("goals").select("primary_goal").eq("user_id", userId).maybeSingle(),
     supabase
       .from("daily_checkins")
-      .select("stress_score, energy_score, voice_response, created_at")
+      .select("stress_score, energy_score, bloating_score, voice_response, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(40),
@@ -166,6 +176,13 @@ export async function getTodayPageData(userId: string): Promise<TodayPageData> {
           checkinsToday.reduce((s, c) => s + c.energy_score, 0) / checkinsToday.length,
         )
       : null;
+  const latestStress = checkinsToday[0]?.stress_score ?? null;
+  const latestEnergy = checkinsToday[0]?.energy_score ?? null;
+  const latestBloating = checkinsToday[0]?.bloating_score ?? null;
+
+  const waterTasks = tasks.filter((t) => t.task_type === "water");
+  const waterStepsTotal = waterTasks.length;
+  const waterStepsDone = waterTasks.filter((t) => t.completed).length;
 
   return {
     profile: profile as Profile | null,
@@ -178,7 +195,12 @@ export async function getTodayPageData(userId: string): Promise<TodayPageData> {
       checkinsTodayCount: checkinsToday.length,
       avgStress,
       avgEnergy,
+      latestStress,
+      latestEnergy,
+      latestBloating,
       mealsTodayCount: mealsToday.length,
+      waterStepsDone,
+      waterStepsTotal,
       closingVoice,
     },
   };

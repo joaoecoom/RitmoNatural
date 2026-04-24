@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,7 +12,6 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { InputField } from "@/components/ui/input-field";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
-import { VoiceOrb } from "@/components/ui/voice-orb";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type AuthMode = "login" | "register";
@@ -84,7 +84,17 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     <AppScreen centered compact>
       <div className="screen-stack">
         <div className="flex justify-center">
-          <VoiceOrb label={mode === "login" ? "Entrar" : "Criar"} size="lg" />
+          <div className="soft-orb mx-auto flex size-32 items-center justify-center rounded-full bg-[radial-gradient(circle,_rgba(255,255,255,0.92),_rgba(212,175,55,0.20)_60%,_transparent_72%)] shadow-[0_24px_48px_rgba(198,167,94,0.14)]">
+            <div className="relative flex size-[4.9rem] items-center justify-center rounded-full bg-[linear-gradient(180deg,#201B16,#0F1A14)] shadow-[0_14px_30px_rgba(15,26,20,0.24)]">
+              <Image
+                alt="A Voz"
+                className="object-contain p-1"
+                fill
+                priority
+                src="/brand/a-voz-logo.png"
+              />
+            </div>
+          </div>
         </div>
 
         <BrandHeader
@@ -116,6 +126,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
             <InputField
               label="Email"
+              autoComplete="email"
               name="email"
               placeholder="o-teu-email@exemplo.com"
               required
@@ -124,6 +135,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
             <InputField
               label="Palavra-passe"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               name="password"
               placeholder="Mínimo de 6 caracteres"
               required
