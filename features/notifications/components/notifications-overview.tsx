@@ -1,10 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   Bell,
   CheckCircle2,
   ChevronRight,
   HeartHandshake,
-  MessageCircleHeart,
   Settings2,
 } from "lucide-react";
 
@@ -74,8 +74,14 @@ export function NotificationsOverview({
         >
           <div className="space-y-3">
             <div className="flex items-start gap-4 rounded-[26px] border border-[rgba(15,26,20,0.06)] bg-[rgba(255,251,247,0.74)] p-5">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[rgba(198,167,94,0.14)]">
-                <MessageCircleHeart className="size-5 text-[#0F1A14]" />
+              <div className="relative size-12 shrink-0 overflow-hidden rounded-2xl ring-1 ring-[rgba(198,167,94,0.28)] shadow-[0_8px_20px_rgba(32,27,22,0.06)]">
+                <Image
+                  alt="A VOZ"
+                  className="object-cover"
+                  fill
+                  sizes="48px"
+                  src="/brand/a-voz-logo.png"
+                />
               </div>
               <div>
                 <p className="text-sm font-medium text-[#0F1A14]">A Voz</p>
